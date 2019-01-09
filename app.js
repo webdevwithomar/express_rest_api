@@ -3,6 +3,15 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+// connect to mongoose
+mongoose.connect('mongodb://localhost/fsjstd-restapi', {
+  useMongoClient: true
+})
+  .then(() => console.log('The connection has been successfully opened !'))
+  .catch(() => console.log('There was a problem opening the connection.'));
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
