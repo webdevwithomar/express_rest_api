@@ -1,29 +1,15 @@
 'use strict';
 
-// load modules
 const express = require('express');
 const logger = require('morgan');
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const bodyParser = require('body-parser');
 const routes = require('./routes');
+const bodyParser = require('body-parser');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 
-// create the Express app
 const app = express();
-
-// routes
-app.use(routes);
-
-// setup morgan which gives us http request logging
-app.use(logger('dev'));
-
-// body-parser
 app.use(bodyParser.json());
-
-// setup morgan which gives us http request logging
 app.use(logger('dev'));
 
 // mongoose
@@ -40,29 +26,32 @@ db.once("open", function () {
   console.log("db connection successful");
 });
 
-// send 404 if no other route matched
+// Routers
+app.use(routes);
+
+// 404 and error handler
 app.use((req, res) => {
   res.status(404).json({
-    message: 'Route Not Found',
+    message: 'Not Found :(',
   });
 });
 
-// setup a global error handler
 app.use((err, req, res, next) => {
   if (enableGlobalErrorLogging) {
     console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
   }
 
   res.status(err.status || 500).json({
+    // message:'Sorry no user was found with the given ID',
     message: err.message,
-    error: {},
+    error: {}
   });
 });
 
 // set our port
-app.set('port', process.env.PORT || 5000);
+const port = process.env.PORT || 5000;
 
 // start listening on our port
-const server = app.listen(app.get('port'), () => {
-  console.log(`Express server is listening on port ${server.address().port}`);
+app.listen('port', () => {
+  console.log(`Listening on port ${port}`);
 });
