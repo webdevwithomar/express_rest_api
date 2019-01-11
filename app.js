@@ -2,19 +2,11 @@
 
 // load modules
 const express = require('express');
-const morgan = require('morgan');
+const logger = require('morgan');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-// map global promise - get rid of warning
-mongoose.Promise = global.Promise;
-
-// connect to mongoose
-mongoose.connect('mongodb://localhost/fsjstd-restapi', {
-  useNewUrlParser: true
-})
-  .then(() => console.log('The connection has been successfully opened !'))
-  .catch(() => console.log('There was a problem opening the connection.'));
+const bodyParser = require('body-parser');
+const routes = require('./routes');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -22,16 +14,30 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 // create the Express app
 const app = express();
 
+// routes
+app.use(routes);
+
 // setup morgan which gives us http request logging
-app.use(morgan('dev'));
+app.use(logger('dev'));
 
-// TODO setup your api routes here
+// body-parser
+app.use(bodyParser.json());
 
-// setup a friendly greeting for the root route
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Welcome to the REST API project!',
-  });
+// setup morgan which gives us http request logging
+app.use(logger('dev'));
+
+// mongoose
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/restapi');
+
+const db = mongoose.connection;
+
+db.on("error", function (err) {
+  console.error("connection error:", err);
+});
+
+db.once("open", function () {
+  console.log("db connection successful");
 });
 
 // send 404 if no other route matched
