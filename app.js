@@ -6,9 +6,12 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// map global promise - get rid of warning
+mongoose.Promise = global.Promise;
+
 // connect to mongoose
 mongoose.connect('mongodb://localhost/fsjstd-restapi', {
-  useMongoClient: true
+  useNewUrlParser: true
 })
   .then(() => console.log('The connection has been successfully opened !'))
   .catch(() => console.log('There was a problem opening the connection.'));
