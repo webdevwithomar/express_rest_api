@@ -14,7 +14,10 @@ app.use(logger('dev'));
 
 // mongoose
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/restapi');
+mongoose.connect('mongodb://localhost:27017/restapi', {
+  useCreateIndex: true,
+  useNewUrlParser: true
+});
 
 const db = mongoose.connection;
 
@@ -26,32 +29,39 @@ db.once("open", function () {
   console.log("db connection successful");
 });
 
-// Routers
+// TODO set up API routes
 app.use(routes);
 
-// 404 and error handler
-app.use((req, res) => {
-  res.status(404).json({
-    message: 'Not Found :(',
+// setup a friendly greeting for the root route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to the REST API project!',
   });
 });
 
+// send 404 if no other route matched
+app.use((req, res) => {
+  res.status(404).json({
+    message: 'Route Not Found',
+  });
+});
+
+// setup a global error handler
 app.use((err, req, res, next) => {
   if (enableGlobalErrorLogging) {
     console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
   }
 
   res.status(err.status || 500).json({
-    // message:'Sorry no user was found with the given ID',
     message: err.message,
-    error: {}
+    error: {},
   });
 });
 
 // set our port
-const port = process.env.PORT || 5000;
+app.set('port', process.env.PORT || 5000);
 
 // start listening on our port
-app.listen('port', () => {
-  console.log(`Listening on port ${port}`);
+const server = app.listen(app.get('port'), () => {
+  console.log(`Express server is listening on port ${server.address().port}`);
 });
